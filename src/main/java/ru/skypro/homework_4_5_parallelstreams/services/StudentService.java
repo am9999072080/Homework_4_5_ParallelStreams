@@ -27,7 +27,10 @@ public interface StudentService {
     List<Student> getLastFiveStudents();
 
     List<Student> getByName(String name);
+
+    List<String> getNamesByA();
+    Double getStudentsAverageAgeByStream();
     Stream<Student> findStudentByNameWithInitial_(Character letter);
-    Pair<Long, Long> getIntegerValueByFormula(int repetition);
+    void calculateWithStream();
 
 }

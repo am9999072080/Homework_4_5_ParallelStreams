@@ -12,6 +12,8 @@ import ru.skypro.homework_4_5_parallelstreams.services.StudentService;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 @Service
@@ -121,6 +123,26 @@ public class StudentServiceImpl implements StudentService {
         logger.info("Student by name");
         return repository.findAll();
     }
+
+    @Override
+    public List<String> getNamesByA() {
+        logger.info("Was invoked method for get students names by A");
+        return repository.findAll().stream()
+                .filter(s -> s.getName().startsWith("A"))
+                .map(s -> s.getName().toUpperCase())
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Double getStudentsAverageAgeByStream() {
+        logger.info("Was invoked method for get student average age with stream");
+        return repository.findAll().stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0.0);
+    }
+
     @Override
     public Stream<Student> findStudentByNameWithInitial_(Character letter) {
         logger.info("search for students, encountered name starts with a letter {A}");
@@ -128,21 +150,58 @@ public class StudentServiceImpl implements StudentService {
         return repository.findAll().stream()
                 .filter(student -> student.getName().charAt(0) == letter)
                 .sorted((student1, student2) -> student1.getName()
-                .compareToIgnoreCase(student2.getName())
+                        .compareToIgnoreCase(student2.getName())
                 );
     }
+
     @Override
-    public Pair<Long, Long> getIntegerValueByFormula(int repetition) {
-        logger.info("get integer value by formula: int sum = Stream.iterate(1, a -> a +1) .limit(1_000_000) .reduce(0, (a, b) -> a + b): {}",
-                repetition);
-        long result = 0;
-        long time0 = System.currentTimeMillis();
-        for (int i = 0; i < repetition; i++) {
-            result = (1 + 100) * (100 / 2);
-        }
-        long time1 = System.currentTimeMillis();
-        return Pair.of(result, time1 - time0);
+    public void calculateWithStream() {
+        int limit = 1_000_000;
+        calculateWithStream(limit);
+        calculateWithStreamParallel(limit);
+        calculateWithLongStream(limit);
+
     }
 
+    private void calculateWithStream(int limit) {
+        long start = System.currentTimeMillis();
+
+        int sum = Stream.iterate(1, a -> a + 1)
+                .limit(limit)
+                .reduce(0, (a, b) -> a + b);
+
+        long end = System.currentTimeMillis();
+
+
+        logger.info("Time 1: " + (end - start));
+    }
+
+    private void calculateWithStreamParallel(int limit) {
+        long start = System.currentTimeMillis();
+
+        int sum = Stream.iterate(1, a -> a + 1)
+                .limit(limit)
+                .reduce(0, (a, b) -> a + b);
+
+        long end = System.currentTimeMillis();
+
+
+        logger.info("Time 2: " + (end - start));
+
+    }
+
+    private void calculateWithLongStream(int limit) {
+        long start = System.currentTimeMillis();
+
+        long sum = LongStream
+                .range(1, limit)
+                .sum();
+
+        long end = System.currentTimeMillis();
+
+
+        logger.info("Time 3: " + (end - start));
+
+    }
 }
 

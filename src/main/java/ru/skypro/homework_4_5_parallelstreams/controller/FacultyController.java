@@ -77,8 +77,10 @@ public class FacultyController {
         List<Student> students = service.get(facultyId).getStudents();//вызываем service
         return ResponseEntity.ok(students);
     }
-    @GetMapping("/получение самого длинного названия факультета")
-    public String gettingTheLongestFacultyName() {
-        return service.findLongestFacultyName();
+
+    @GetMapping("longest-name")
+    @Operation(summary = "получение самого длинного наименование факультета")
+    public ResponseEntity<String> gettingTheLongestFacultyName() {
+        return ResponseEntity.ok(service.findLongestFacultyName());
     }
-  }
+}

@@ -11,6 +11,7 @@ import ru.skypro.homework_4_5_parallelstreams.repository.FacultyRepository;
 import ru.skypro.homework_4_5_parallelstreams.services.FacultyService;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Optional;
 
 @Service
@@ -77,15 +78,13 @@ public class FacultyServiceImpl implements FacultyService {
         logger.info("List of all faculties: ");
         return repository.findAll();
     }
+
     public String findLongestFacultyName() {
         logger.info("Search for the longest department name");
         logger.info("Longest faculty name: ");
         return repository.findAll().stream()
                 .map(Faculty::getName)
-                .reduce("",
-                        (theLongest, next) ->
-                                (next != null && next.length() > theLongest.length()) ?
-                                        next : theLongest
-                );
+                .max(Comparator.comparingInt(String::length))
+                .orElse("");
     }
 }

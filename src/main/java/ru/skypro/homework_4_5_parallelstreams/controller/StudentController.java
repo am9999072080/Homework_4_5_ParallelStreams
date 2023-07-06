@@ -1,9 +1,11 @@
 package ru.skypro.homework_4_5_parallelstreams.controller;
 
+import liquibase.pro.packaged.R;
 import liquibase.repackaged.org.apache.commons.lang3.tuple.Pair;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework_4_5_parallelstreams.model.Faculty;
@@ -108,36 +110,31 @@ public class StudentController {
         return ResponseEntity.ok(students);
     }
 
+
+    @GetMapping({"Name-by-A"})
+    @Operation(summary = "Получение имена студентов на букву А")
+    public ResponseEntity<Collection<String>> getNameByA() {
+        Collection<String> students = service.getNamesByA();
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("age/average-stream")
+    @Operation(summary = "Получение среднего возраста студентов (стрим)")
+    public ResponseEntity<Double> getStudentsAverageAgeByStream() {
+        Double averageAge = service.getStudentsAverageAgeByStream();
+        return ResponseEntity.ok(averageAge);
+    }
+
     @GetMapping("/получение студентов, у которых имена начинаются с буквы/{letter}")
+    @Operation(summary = "Получение студентов по первой букве")
     public Stream<Student> getStudentsWithNameStartsWithLetter(@PathVariable Character letter) {
         return service.findStudentByNameWithInitial_(letter);
     }
 
-
-    @GetMapping({"/Получение целочисленного значения по формуле: 1-to-1M/{repetition}",
-            "/Получение целочисленного значения по формуле: 1-to-1M"})
-    public Stream<Pair<String, Pair<Long, Long>>>
-    getSumOfArithmeticProgressionFrom1to1M(
-            @PathVariable(required = false) Optional<Integer> repetition
-    ) {
-        int repeatsNumber = repetition.orElse(20);
-        return Stream.<Pair<String, Pair<Long, Long>>>builder()
-                .add(Pair.of(
-                                "The sum by reduction(0, (a,b) -> a + b)",
-                                service.getIntegerValueByFormula(repeatsNumber)
-                        )
-                )
-                .add(Pair.of(
-                                "The Sum using parallel stream reduce(0, (a,b) -> a + b)",
-                                service.getIntegerValueByFormula(repeatsNumber)
-                        )
-                ).add(Pair.of(
-                                "The sum of the formula will be",
-                                service.getIntegerValueByFormula(repeatsNumber)
-                        )
-                )
-                .build();
+    @GetMapping("/stream-calculate")
+    @Operation(summary = "Получение значение за меньшее количество времени")
+    public ResponseEntity<Void> calculateWithStream() {
+        service.calculateWithStream();
+        return ResponseEntity.ok().build();
     }
 }
-
-
